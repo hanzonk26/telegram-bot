@@ -14,10 +14,10 @@ async def btc(update: Update, context: ContextTypes.DEFAULT_TYPE):
         data = requests.get(url).json()
         price = data["price"]
 
-        await update.message.reply_text("Harga BTC: $" + price)
+        await update.message.reply_text(f"Harga BTC sekarang: ${price}")
 
-    except:
-        await update.message.reply_text("Gagal mengambil harga BTC")
+    except Exception as e:
+        await update.message.reply_text("API harga BTC error")
 
 app = ApplicationBuilder().token(TOKEN).build()
 
