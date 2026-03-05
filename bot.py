@@ -3,20 +3,20 @@ import requests
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-TOKEN = os.environ.get("TOKEN")
+TOKEN = os.getenv("TOKEN")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Bot crypto aktif 🚀")
+    await update.message.reply_text("Bot aktif 🚀")
 
 async def btc(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
+        url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
         data = requests.get(url).json()
-        price = data["bitcoin"]["usd"]
+        price = data["price"]
 
-        await update.message.reply_text(f"Harga BTC sekarang: ${price}")
+        await update.message.reply_text("Harga BTC: $" + price)
 
-    except Exception as e:
+    except:
         await update.message.reply_text("Gagal mengambil harga BTC")
 
 app = ApplicationBuilder().token(TOKEN).build()
