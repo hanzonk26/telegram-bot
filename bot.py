@@ -10,20 +10,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def btc(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        import aiohttp
+        url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
 
-        url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
+        response = await context.bot._request.get(url)
+        data = response.json()
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as resp:
-                data = await resp.json()
-                price = data["price"]
+        price = data["bitcoin"]["usd"]
 
         await update.message.reply_text(f"Harga BTC sekarang: ${price}")
 
     except Exception as e:
         print(e)
-        await update.message.reply_text("API harga BTC error")
+        await update.message.reply_text("Gagal mengambil harga BTC")
 
 app = ApplicationBuilder().token(TOKEN).build()
 
