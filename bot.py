@@ -5,21 +5,16 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 TOKEN = os.getenv("TOKEN")
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Bot aktif 🚀")
-
 async def btc(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
+        import aiohttp
+
         url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
 
-        headers = {
-            "User-Agent": "Mozilla/5.0"
-        }
-
-        response = requests.get(url, headers=headers, timeout=10)
-        data = response.json()
-
-        price = data["price"]
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                data = await resp.json()
+                price = data["price"]
 
         await update.message.reply_text(f"Harga BTC sekarang: ${price}")
 
