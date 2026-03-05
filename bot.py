@@ -14,16 +14,25 @@ async def btc(update: Update, context: ContextTypes.DEFAULT_TYPE):
         url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(url) as resp:
+            async with session.get(url, timeout=10) as resp:
+
+                if resp.status != 200:
+                    await update.message.reply_text("API Binance error")
+                    return
+
                 data = await resp.json()
 
-        price = data["price"]
+        price = data.get("price")
+
+        if not price:
+            await update.message.reply_text("Data harga tidak ditemukan")
+            return
 
         await update.message.reply_text(f"Harga BTC sekarang: ${price}")
 
     except Exception as e:
-        print(e)
-        await update.message.reply_text("API harga BTC error")
+        print("ERROR API:", e)
+        await update.message.reply_text("Gagal mengambil harga BTC")
 
 app = ApplicationBuilder().token(TOKEN).build()
 
