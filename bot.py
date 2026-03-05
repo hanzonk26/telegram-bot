@@ -9,9 +9,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def btc(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
-        data = requests.get(url).json()
-        price = data["price"]
+        url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
+data = requests.get(url).json()
+price = data["bitcoin"]["usd"]
         await update.message.reply_text(f"Harga BTC sekarang: ${price}")
     except:
         await update.message.reply_text("Gagal mengambil harga BTC")
