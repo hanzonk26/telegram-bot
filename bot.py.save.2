@@ -1,68 +1,86 @@
-import os
+import aiohttp
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
+# ===============================
+# PASTE TOKEN TELEGRAM DI SINI
+# ===============================
 TOKEN = "8545465161:AAEqRNb7g54ocNm2yi3iJvM9A1NS4LaivUs"
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Bot crypto aktif 🚀")
 
+
+# ===============================
+# START COMMAND
+# ===============================
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🚀 Bot crypto aktif!")
+
+
+# ===============================
+# BTC PRICE
+# ===============================
 async def btc(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        import aiohttp
-
         url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, timeout=10) as resp:
+            async with session.get(url) as resp:
 
                 if resp.status != 200:
                     await update.message.reply_text("API Binance error")
                     return
 
                 data = await resp.json()
+                price = data.get("price")
 
-        price = data.get("price")
-
-        if not price:
-            await update.message.reply_text("Data harga tidak ditemukan")
-            return
-
-        await update.message.reply_text(f"Harga BTC sekarang: ${price}")
+        await update.message.reply_text(f"💰 Harga BTC sekarang: ${price}")
 
     except Exception as e:
-        print("ERROR API:", e)
+        print(e)
         await update.message.reply_text("Gagal mengambil harga BTC")
 
+
+# ===============================
+# ETH PRICE
+# ===============================
 async def eth(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        import aiohttp
-
         url = "https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT"
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, timeout=10) as resp:
+            async with session.get(url) as resp:
+
+                if resp.status != 200:
+                    await update.message.reply_text("API Binance error")
+                    return
 
                 data = await resp.json()
                 price = data.get("price")
 
-                await update.message.reply_text(f"Harga ETH sekarang: ${price}")
+        await update.message.reply_text(f"💰 Harga ETH sekarang: ${price}")
 
     except Exception as e:
-        print("ERROR API:", e)
-        await update.message.reply_text("Gagal mengambil harga ETH")     
+        print(e)
+        await update.message.reply_text("Gagal mengambil harga ETH")
 
+
+# ===============================
+# TOP 10 MARKET
+# ===============================
 async def top(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        import requests
-
         url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1"
 
-        data = requests.get(url).json()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                data = await resp.json()
 
-        text = "Top 10 Crypto Market:\n\n"
+        text = "📊 Top 10 Crypto Market:\n\n"
 
         for coin in data:
-            text += f"{coin['name']} : ${coin['current_price']}\n"
+            name = coin["name"]
+            price = coin["current_price"]
+
+            text += f"{name} : ${price}\n"
 
         await update.message.reply_text(text)
 
@@ -70,26 +88,33 @@ async def top(update: Update, context: ContextTypes.DEFAULT_TYPE):
         print(e)
         await update.message.reply_text("Gagal mengambil data market")
 
+
+# ===============================
+# FEAR GREED INDEX
+# ===============================
 async def fear(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        import requests
-
         url = "https://api.alternative.me/fng/"
-        data = requests.get(url).json()
 
-        value = data["data"][0]["value"]
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                data = await resp.json()
+
+        score = data["data"][0]["value"]
         status = data["data"][0]["value_classification"]
 
         await update.message.reply_text(
-            f"Fear & Greed Index\n\nScore : {value}\nStatus : {status}"
+            f"📉 Fear & Greed Index\n\nScore : {score}\nStatus : {status}"
         )
 
     except Exception as e:
         print(e)
-        await update.message.reply_text("Gagal mengambil data sentiment")
+        await update.message.reply_text("Gagal mengambil Fear & Greed")
 
 
-
+# ===============================
+# MAIN BOT
+# ===============================
 app = ApplicationBuilder().token(TOKEN).build()
 
 app.add_handler(CommandHandler("start", start))
@@ -97,6 +122,7 @@ app.add_handler(CommandHandler("btc", btc))
 app.add_handler(CommandHandler("eth", eth))
 app.add_handler(CommandHandler("top", top))
 app.add_handler(CommandHandler("fear", fear))
+
 print("Bot berjalan...")
 
 app.run_polling()
