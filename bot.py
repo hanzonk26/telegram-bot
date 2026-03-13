@@ -2,7 +2,7 @@ import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-TOKEN = "8545465161:AAHiROdY6iVQNcttKAm0pJ2V9YHjjUc9dp4"
+TOKEN = "TOKEN"
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Bot crypto aktif 🚀")
 
